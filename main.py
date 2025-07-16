@@ -9,7 +9,7 @@ import numpy as np
 import base64
 
 universal_dir_path = None
-universal_drvl_path = ""
+universal_srushti_path = ""
 
 def remove_from_json(json_path):
     try:
@@ -62,16 +62,16 @@ def compute_md5(file_path):
 
     return hash_md5.hexdigest()
 
-def extract_universal_drvl_path(file_path):
+def extract_universal_srushti_path(file_path):
     try:
         with open(file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
-                if "universal_drvl_path:" in line:
-                    path = line.split("universal_drvl_path:")[1].strip()
+                if "universal_srushti_path:" in line:
+                    path = line.split("universal_srushti_path:")[1].strip()
                     return path
 
-            print(f"Error: 'universal_drvl_path:' not found in '{file_path}'.")
+            print(f"Error: 'universal_srushti_path:' not found in '{file_path}'.")
             return None
     except FileNotFoundError:
         print(f"Error: File '{file_path}' not found.")
@@ -79,7 +79,7 @@ def extract_universal_drvl_path(file_path):
 
 def extract_username_from_file(dir_path):
     
-    file_path = os.path.join(dir_path,".drvl","branches","main","users")
+    file_path = os.path.join(dir_path,".srushti","branches","main","users")
     
     try:
         with open(file_path, 'r') as file:
@@ -94,7 +94,7 @@ def extract_username_from_file(dir_path):
 
 def change_user_name(dir_path, new_username):
     
-    file_path = os.path.join(dir_path,".drvl","branches","main","users")
+    file_path = os.path.join(dir_path,".srushti","branches","main","users")
     old_user = extract_username_from_file(dir_path)
     
     with open(file_path, 'r') as file:
@@ -113,13 +113,13 @@ def add(to_file_name, file_path):
     dir_path = universal_dir_path
     files_directories = os.listdir(dir_path)    
     file_name = to_file_name
-    drvl_path = os.path.join(dir_path,".drvl")
+    srushti_path = os.path.join(dir_path,".srushti")
     
-    if ".drvl" not in files_directories:
-        drvl_path = universal_drvl_path
+    if ".srushti" not in files_directories:
+        srushti_path = universal_srushti_path
     
-    index_path = os.path.join(drvl_path, "branches", "main", "index.json")
-    added_path = os.path.join(drvl_path, "branches", "main", "added.json")
+    index_path = os.path.join(srushti_path, "branches", "main", "index.json")
+    added_path = os.path.join(srushti_path, "branches", "main", "added.json")
     md5_hash = compute_md5(file_path)
     append_to_json(index_path, file_name, {"md5 hash": md5_hash})
     append_to_json(added_path, file_name, {"md5 hash": md5_hash, "file_path": file_path})
@@ -127,18 +127,18 @@ def add(to_file_name, file_path):
 
 def addallfiles(dir_path, flag):
     files_directories = os.listdir(dir_path)
-    if '.drvl' not in files_directories and flag==False:
-        print("Exiting program, This folder has not been intialized/ .drvl doesnt exist, Use init command to intialize ")
+    if '.srushti' not in files_directories and flag==False:
+        print("Exiting program, This folder has not been intialized/ .srushti doesnt exist, Use init command to intialize ")
         return
     
     for item in files_directories:
         
         full_path = os.path.join(dir_path,item)
 
-        if os.path.isdir(full_path) and item != '.drvl':
+        if os.path.isdir(full_path) and item != '.srushti':
             addallfiles(full_path,True)
             
-        elif item!='.drvl':
+        elif item!='.srushti':
             add(item,full_path)  
   
 def encode_file_content_to_base64(file_path):
@@ -154,11 +154,11 @@ def get_all_files(dir_path, all_files):
 
         if os.path.isfile(item_path):
             all_files.append(item_path)
-        elif os.path.isdir(item_path) and item!=".drvl":
+        elif os.path.isdir(item_path) and item!=".srushti":
             get_all_files(item_path, all_files)
 
 def get_tracked_hashes(dir_path):
-    json_path = os.path.join(dir_path, ".drvl/branches/main/added.json")
+    json_path = os.path.join(dir_path, ".srushti/branches/main/added.json")
     
     try:
         with open(json_path, "r") as added_file:
@@ -204,7 +204,7 @@ def decode_and_update_files(commit, destination_folder, flag2):
                 file.write(decoded_content)
 
             if flag2:
-                md5_hash_path = os.path.join(universal_dir_path,".drvl",'objects', 'files_md5_hash.json')
+                md5_hash_path = os.path.join(universal_dir_path,".srushti",'objects', 'files_md5_hash.json')
                 md5_hash_data = {}
                 
                 actual_md5 = compute_md5(destination_path)
@@ -227,8 +227,8 @@ def decode_and_update_files(commit, destination_folder, flag2):
     return True
    
 def checkout_commit(md5_hash, dir_path):
-    commits_path = os.path.join(dir_path, ".drvl", "objects", "commits.json")
-    md5_hash_path = os.path.join(dir_path, ".drvl", "objects", "files_md5_hash.json")
+    commits_path = os.path.join(dir_path, ".srushti", "objects", "commits.json")
+    md5_hash_path = os.path.join(dir_path, ".srushti", "objects", "files_md5_hash.json")
 
     try:
         with open(commits_path, 'r') as commits_file:
@@ -271,10 +271,10 @@ def checkout_commit(md5_hash, dir_path):
            
 def commits(base_directory, message):
     
-    drvl_path = os.path.join(base_directory, ".drvl")
-    added_path = os.path.join(drvl_path, "branches", "main", 'added.json')
-    commits_path = os.path.join(drvl_path, 'objects', 'commits.json')
-    md5_hash_path = os.path.join(drvl_path, 'objects', 'files_md5_hash.json')
+    srushti_path = os.path.join(base_directory, ".srushti")
+    added_path = os.path.join(srushti_path, "branches", "main", 'added.json')
+    commits_path = os.path.join(srushti_path, 'objects', 'commits.json')
+    md5_hash_path = os.path.join(srushti_path, 'objects', 'files_md5_hash.json')
     
     if not os.path.exists(added_path):
         print("Files have not been tracked yet. Use the add command to track files. After that, you can use the commit command.")
@@ -390,7 +390,7 @@ def remove_commit(commits_path):
     return commit_before_removed
     
 def rmcommit(dir_path):
-    commits_path = os.path.join(dir_path,".drvl","objects","commits.json")
+    commits_path = os.path.join(dir_path,".srushti","objects","commits.json")
     
     if(os.path.exists(commits_path)==False):
         print("The path of commits.json has been changed. Kindly check if the file exists and it is placed in correct folder")
@@ -402,9 +402,9 @@ def rmcommit(dir_path):
         decode_and_update_files(to_be_restore,dir_path, True)
 
 def rmadd(base_directory):
-    drvl_path = os.path.join(base_directory, ".drvl")
-    added_path = os.path.join(drvl_path, "branches", "main", "added.json")
-    index_path = os.path.join(drvl_path, "branches", "main", "index.json")
+    srushti_path = os.path.join(base_directory, ".srushti")
+    added_path = os.path.join(srushti_path, "branches", "main", "added.json")
+    index_path = os.path.join(srushti_path, "branches", "main", "index.json")
 
     if not os.path.exists(added_path):
         print("Files have not been tracked yet or added.json doesnt exist. Use add command to track files and create added.json.")
@@ -427,26 +427,26 @@ def print_status(dir_path):
         print("No untracked files.")
         
 def print_usage_help():
-    print("drvl - A Version Control System.")
-    print("drvl init - Initialize a new drvl repository")
-    print("drvl add <file> - Add a file to the index")
-    print("drvl commit -m <message> - Commit changes with a message")
-    print("drvl rmadd <file> - Remove a file from the index")
-    print("drvl rmcommit - Remove last commit")
-    print("drvl log - Display commit log")
-    print("drvl checkout <commit> - Checkout a specific commit")
-    print("drvl help - To see this usage help")
-    print("drvl status - To see status")
-    print("drvl user show - To see present user")
-    print("drvl user set <username> - To change user")
-    print("drvl push <path> - To push your file to another folder")
-    print("drvl clear - To clear the terminal")
-    print("drvl location - To get current location")
-    print("Created by - Dhruvil")
+    print("srushti - A Version Control System.")
+    print("srushti init - Initialize a new srushti repository")
+    print("srushti add <file> - Add a file to the index")
+    print("srushti commit -m <message> - Commit changes with a message")
+    print("srushti rmadd <file> - Remove a file from the index")
+    print("srushti rmcommit - Remove last commit")
+    print("srushti log - Display commit log")
+    print("srushti checkout <commit> - Checkout a specific commit")
+    print("srushti help - To see this usage help")
+    print("srushti status - To see status")
+    print("srushti user show - To see present user")
+    print("srushti user set <username> - To change user")
+    print("srushti push <path> - To push your file to another folder")
+    print("srushti clear - To clear the terminal")
+    print("srushti location - To get current location")
+    print("Created by - Srushti")
 
 def push(base_directory, destination_path):
-    drvl_path = os.path.join(base_directory, ".drvl")
-    commits_path = os.path.join(drvl_path, 'objects', 'commits.json')
+    srushti_path = os.path.join(base_directory, ".srushti")
+    commits_path = os.path.join(srushti_path, 'objects', 'commits.json')
     
     if os.path.exists(destination_path)==False or destination_path[0]=='.':
         print("Destination path/directory doesnt exist kindly check")
@@ -499,7 +499,7 @@ class init:
         self.curr_dir_path = dir_path
         self.user = ""
 
-        if not os.path.exists(os.path.join(self.curr_dir_path, ".drvl")):
+        if not os.path.exists(os.path.join(self.curr_dir_path, ".srushti")):
             self.user = input("Provide a username: ")
             user_name_arr = self.user.split()
             
@@ -507,22 +507,22 @@ class init:
                 print("exiting!! kindly enter username without any break")
                 return
             
-            self.drvl_makedirs(self.curr_dir_path, self.user)
-            print(".drvl created successfully")
+            self.srushti_makedirs(self.curr_dir_path, self.user)
+            print(".srushti created successfully")
             
         else:
             print("This folder has already been intialised once")
 
-    def drvl_makedirs(self, base_path, user_name):
-        drvl_path = os.path.join(base_path, ".drvl")
-        os.makedirs(drvl_path)
+    def srushti_makedirs(self, base_path, user_name):
+        srushti_path = os.path.join(base_path, ".srushti")
+        os.makedirs(srushti_path)
 
         if platform.system() == 'Windows':
-            attrib_cmd = f'attrib +h "{drvl_path}"'
+            attrib_cmd = f'attrib +h "{srushti_path}"'
             os.system(attrib_cmd)
             
-        branches_path = os.path.join(drvl_path, "branches")
-        objects_path = os.path.join(drvl_path, "objects")
+        branches_path = os.path.join(srushti_path, "branches")
+        objects_path = os.path.join(srushti_path, "objects")
         os.makedirs(branches_path)
         os.makedirs(objects_path)
 
@@ -535,13 +535,13 @@ class init:
             file.write(f"Date: {current_date_time.strftime('%d-%m-%Y')}\n")
             file.write(f"Timestamp: {current_date_time.strftime('%H:%M:%S')}\n")
             file.write(f"User:{user_name}\n")
-            file.write("universal_drvl_path: " + universal_dir_path)
+            file.write("universal_srushti_path: " + universal_dir_path)
             file.write("\n\n")
 
 while True:
     
     if universal_dir_path==None:
-        universal_dir_path = input("Enter directory location where you want to use .drvl : ")
+        universal_dir_path = input("Enter directory location where you want to use .srushti : ")
         print()
                 
         if(os.path.exists(universal_dir_path)==False or universal_dir_path[0]=='.'):
@@ -592,8 +592,8 @@ while True:
         print()
         
     elif args[0] == "status":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
@@ -606,8 +606,8 @@ while True:
         print()
     
     elif args[0] == "add":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
@@ -622,13 +622,13 @@ while True:
             continue
 
         elif args[1] == '.':
-            universal_drvl_path = extract_universal_drvl_path(os.path.join(universal_dir_path, ".drvl", "branches", "main", "users"))
+            universal_srushti_path = extract_universal_srushti_path(os.path.join(universal_dir_path, ".srushti", "branches", "main", "users"))
             addallfiles(universal_dir_path, False)
             print()
         
         else:
             file_path = os.path.join(universal_dir_path, args[1])
-            universal_drvl_path = extract_universal_drvl_path(os.path.join(universal_dir_path, ".drvl", "branches", "main", "users"))
+            universal_srushti_path = extract_universal_srushti_path(os.path.join(universal_dir_path, ".srushti", "branches", "main", "users"))
             if not os.path.exists(file_path):
                 print("File doesn't exist or File name not given!!")
                 print()
@@ -638,8 +638,8 @@ while True:
             print()
      
     elif args[0] == "commit":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
 
@@ -671,8 +671,8 @@ while True:
         
 
     elif args[0] == "rmcommit":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
 
@@ -685,8 +685,8 @@ while True:
         print()
 
     elif args[0] == "rmadd":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
 
@@ -699,8 +699,8 @@ while True:
         print()
 
     elif args[0] == "push":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
@@ -709,12 +709,12 @@ while True:
         print()
       
     elif args[0] == "user" and len(args)>=2 and args[1]=="show":
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
-        if not os.path.exists(os.path.join(universal_dir_path,".drvl","branches","main","users")):
+        if not os.path.exists(os.path.join(universal_dir_path,".srushti","branches","main","users")):
             print("Error. The users.txt file has been deleted or has been moved. kindly check")
             print()
             continue
@@ -731,12 +731,12 @@ while True:
         
     elif args[0] == "user" and len(args)>=3 and args[1]=="set":
         
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
-        if not os.path.exists(os.path.join(universal_dir_path,".drvl","branches","main","users")):
+        if not os.path.exists(os.path.join(universal_dir_path,".srushti","branches","main","users")):
             print("Error. The users.txt file has been deleted or has been moved. kindly check")
             print()
             continue
@@ -753,18 +753,18 @@ while True:
         
     elif args[0] == "log":
         
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
-        if not os.path.exists(os.path.join(universal_dir_path,".drvl","objects","commits.json")):
+        if not os.path.exists(os.path.join(universal_dir_path,".srushti","objects","commits.json")):
             print("commits.json doesnt exist. Kindly use add command and then commit command to create one or restore back the old one")
             print() 
             continue
 
         if len(args) == 1:
-            commits_path = os.path.join(universal_dir_path, ".drvl", "objects","commits.json")
+            commits_path = os.path.join(universal_dir_path, ".srushti", "objects","commits.json")
             display_logs(commits_path)
             print()
             
@@ -793,8 +793,8 @@ while True:
         
     elif args[0] == "checkout":
         
-        if not os.path.exists(universal_dir_path + "/.drvl"):
-            print("Exiting program, This folder has not been initialized/ .drvl doesn't exist, Use init command to initialize ")
+        if not os.path.exists(universal_dir_path + "/.srushti"):
+            print("Exiting program, This folder has not been initialized/ .srushti doesn't exist, Use init command to initialize ")
             print()
             continue
         
